@@ -61,6 +61,7 @@ interface SendPageProps {
 export const SendPage = ({ walletFileName }: SendPageProps) => {
   const { t } = useTranslation()
   const client = useApiClient()
+  const [formId, setFormId] = useState<number>(0)
   const { fetchIfMissing } = useJmConfig({ walletFileName })
   const { refetch: refetchWalletInfo, waitForUtxosToBeSpent, setWaitForUtxosToBeSpent } = useJamWalletInfoContext()
   const jmSession = useStore(jmSessionStore, (state) => state.state)
@@ -125,6 +126,7 @@ export const SendPage = ({ walletFileName }: SendPageProps) => {
     ...directsendMutation({ client }),
     retry: false,
   })
+
   const {
     isPending: startCoinjoinMutationIsPending,
     isSuccess: startCoinjoinMutationIsSuccess,
@@ -350,6 +352,7 @@ export const SendPage = ({ walletFileName }: SendPageProps) => {
       jmTxStore.getState().add(tx)
 
       setWaitForUtxosToBeSpent(inputUtxoIds)
+      setFormId((current) => current + 1)
       setPaymentSuccessfulInfoAlert({
         variant: 'success',
         title: /* TODO: i18n */ 'Successfully sent non-collaborative transaction',
@@ -579,6 +582,7 @@ export const SendPage = ({ walletFileName }: SendPageProps) => {
         <Card>
           <CardContent>
             <SendForm
+              key={formId}
               onSubmit={onSubmit}
               walletFileName={walletFileName}
               minNumberOfCollaborators={minimumCollaborators}
